@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {Script} from "forge-std/Script.sol";
 import {MockV3Aggregator} from "../test/mocks/MockV3Aggregator.sol";
@@ -16,9 +16,9 @@ contract HelperConfig is Script {
     }
 
     uint8 public constant DECIMALS = 8;
-    int256 public constant ETH_USD_PRICE = 2500 * 10e8;
-    int256 public constant WBTC_USD_PRICE = 107564 * 10e8;
-    int256 public defaultAnvilKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
+    int256 public constant ETH_USD_PRICE = 2500 * 1e8;
+    int256 public constant WBTC_USD_PRICE = 107564 * 1e8;
+    uint256 public defaultAnvilKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
 
     NetworkConfig public activeNetworkConfig;
 

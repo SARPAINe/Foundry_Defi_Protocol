@@ -21,13 +21,13 @@
 // private
 // view & pure functions
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {DecentralizedStableCoin} from "./DecentralizedStableCoin.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
-
+import {console} from "forge-std/console.sol";
 /**
  * @title DSCEngine
  * @author Shaharin Ahmed
@@ -47,6 +47,7 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
  * as well as depositing and withdrawing collateral.
  * @notice This contract is very loosely based on the MakerDAO DSS (DAI) system.
  */
+
 contract DSCEngine is ReentrancyGuard {
     ///////////////
     // Errors //
@@ -222,6 +223,7 @@ contract DSCEngine is ReentrancyGuard {
     function getUsdValue(address token, uint256 amount) public view returns (uint256) {
         AggregatorV3Interface priceFeed = AggregatorV3Interface(s_priceFeeds[token]);
         (, int256 price,,,) = priceFeed.latestRoundData();
+        console.log("getUsdValue ~ price:", price);
         return (uint256(price) * ADDITIONAL_FEED_PRECISION * amount) / PRECISION;
     }
 }

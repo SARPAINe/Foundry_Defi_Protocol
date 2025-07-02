@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {Script, console} from "forge-std/Script.sol";
 import {DecentralizedStableCoin} from "../src/DecentralizedStableCoin.sol";
@@ -11,8 +11,8 @@ contract DeployDSC is Script {
     address[] public tokenAddresses;
     address[] public priceFeedAddresses;
 
-    function run() external returns (DecentralizedStableCoin dsc, DSCEngine dscEngine) {
-        HelperConfig config = new HelperConfig();
+    function run() external returns (DecentralizedStableCoin dsc, DSCEngine dscEngine, HelperConfig config) {
+        config = new HelperConfig();
         (address wethUsdPriceFeed, address wbtcUsdPriceFeed, address weth, address wbtc, uint256 deployerKey) =
             config.activeNetworkConfig();
         tokenAddresses = [weth, wbtc];
@@ -30,6 +30,6 @@ contract DeployDSC is Script {
 
         vm.stopBroadcast();
 
-        return (dsc, dscEngine);
+        return (dsc, dscEngine, config);
     }
 }

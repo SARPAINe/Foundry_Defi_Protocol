@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
+
+import {console} from "forge-std/console.sol";
 
 /**
  * @title MockV3Aggregator
@@ -22,6 +24,7 @@ contract MockV3Aggregator {
     mapping(uint256 => uint256) private getStartedAt;
 
     constructor(uint8 _decimals, int256 _initialAnswer) {
+        console.log("constructor ~ _initialAnswer:", _initialAnswer);
         decimals = _decimals;
         updateAnswer(_initialAnswer);
     }
