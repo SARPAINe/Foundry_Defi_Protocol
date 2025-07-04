@@ -8,6 +8,8 @@ import {DecentralizedStableCoin} from "src/DecentralizedStableCoin.sol";
 import {DeployDSC} from "script/DeployDSC.s.sol";
 import {HelperConfig} from "script/HelperConfig.s.sol";
 import {ERC20Mock} from "test/mocks/ERC20Mock.sol";
+import {MockV3Aggregator} from "test/mocks/MockV3Aggregator.sol";
+import {console} from "forge-std/console.sol";
 
 contract DSCEngineTest is Test {
     DeployDSC deployer;
@@ -19,8 +21,9 @@ contract DSCEngineTest is Test {
     address weth;
 
     address public USER = makeAddr("user");
-    uint256 public constant AMOUNT_COLLATERAL = 10 ether;
+    uint256 public constant AMOUNT_COLLATERAL = 1 ether;
     uint256 public constant STARTING_ERC20_BALANCE = 10 ether;
+    uint256 public constant AMOUNT_TO_MINT = 100 ether;
 
     function setUp() external {
         deployer = new DeployDSC();
@@ -134,5 +137,45 @@ contract DSCEngineTest is Test {
         );
         assertEq(totalDscMinted, 0);
         assertEq(expectedDepositedAmount, AMOUNT_COLLATERAL);
+    }
+
+    ///////////////////////////////////////
+    // depositCollateralAndMintDsc Tests //
+    ///////////////////////////////////////
+
+    function testRevertsIfMintedDscBreaksHealthFactor() public {
+        (, int256 price, , , ) = MockV3Aggregator(ethUsdPriceFeed)
+            .latestRoundData();
+        uint256 amountToMint = ((AMOUNT_COLLATERAL *
+            (uint256(price) * dscEngine.getAdditionalFeedPrecision())) /
+            dscEngine.getPrecision());
+        console.log("~ amountToMint:", amountToMint);
+        console.log(
+            "~ usd value:",
+            dscEngine.getUsdValue(weth, AMOUNT_COLLATERAL)
+        );
+        vm.startPrank(USER);
+        ERC20Mock(weth).approve(address(dscEngine), AMOUNT_COLLATERAL);
+
+        uint256 expectedHealthFactor = dscEngine.calculateHealthFactor(
+            amountToMint + 1, // Minting more than the calculated amount
+            dscEngine.getUsdValue(weth, AMOUNT_COLLATERAL)
+        );
+        console.log(
+            "testRevertsIfMintedDscBreaksHealthFactor ~ expectedHealthFactor:",
+            expectedHealthFactor
+        );
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                DSCEngine.DSCEngine__BreaksHealthFactor.selector,
+                expectedHealthFactor
+            )
+        );
+        dscEngine.depositCollateralAndMintDsc(
+            weth,
+            AMOUNT_COLLATERAL,
+            amountToMint + 1
+        );
+        vm.stopPrank();
     }
 }
