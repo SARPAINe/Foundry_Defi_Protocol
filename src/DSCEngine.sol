@@ -375,8 +375,6 @@ contract DSCEngine is ReentrancyGuard {
         uint256 totalDscMinted,
         uint256 collateralValueInUsd
     ) internal pure returns (uint256) {
-        console.log("totalDscMinted:", totalDscMinted);
-        console.log("collateralValueInUsd:", collateralValueInUsd);
         if (totalDscMinted == 0) return type(uint256).max;
         uint256 collateralAdjustedForThreshold = (collateralValueInUsd *
             LIQUIDATION_THRESHOLD) / LIQUIDATION_PRECISION;
@@ -441,7 +439,6 @@ contract DSCEngine is ReentrancyGuard {
             s_priceFeeds[token]
         );
         (, int256 price, , , ) = priceFeed.latestRoundData();
-        console.log("getUsdValue ~ price:", price);
         return
             (uint256(price) * ADDITIONAL_FEED_PRECISION * amount) / PRECISION;
     }
@@ -486,6 +483,13 @@ contract DSCEngine is ReentrancyGuard {
 
     function getDsc() external view returns (address) {
         return address(i_dsc);
+    }
+
+    function getCollateralBalanceOfUser(
+        address user,
+        address token
+    ) external view returns (uint256) {
+        return s_collateralDeposited[user][token];
     }
 
     function getCollateralTokenPriceFeed(
